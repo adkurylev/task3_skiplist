@@ -32,12 +32,24 @@ template<class Value, class Key, class Node>
 OrderedList<Value, Key, Node>::~OrderedList()
 {
     Node* current = _preHead->next;
+    Node* next = current->next;
+    // от такого способа чета одни сегфолты летят,
+    // хотя вроде должен работать, да еще и красивый :(
+//    while(current != _preHead)
+//    {
+//        current = current->next;
+//        removeNext(_preHead->next);
+//    }
+//    delete current;
+
     while(current != _preHead)
     {
-        current = current->next;
-        removeNext(_preHead->next);
+        next = current->next;
+        delete current;
+        current = next;
     }
-    delete current;
+
+    delete current, next;
 }
 
 //-----------------------------------------------------------------------------

@@ -80,5 +80,24 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
         const TimeStamp& timeTo,
         std::ostream& out) const
 {
-    // TODO: Implement this method!
+    if (timeFrom > timeTo)
+        throw std::invalid_argument("Time from > time to.");
+
+    auto firstLog = _journal.findLastLessThan(timeFrom)->next;
+    auto lastLog = _journal.findLastLessThan(timeTo);
+
+    while(lastLog->next->key == timeTo)
+        lastLog = lastLog->next;
+
+    auto run = firstLog;
+
+    while(run != lastLog->next)
+    {
+        if(run->value.host == hostSuspicious)
+            out << run->key << " " << run->value.user << " " << hostSuspicious << std::endl;
+
+        run = run->next;
+    }
+
+    delete lastLog, firstLog, run;
 }

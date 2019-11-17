@@ -278,19 +278,19 @@ TEST(SkipList, simple)
 {
     TestSkipList list();
 
-//    TestSkipList list1(0.3);
-//    TestSkipList list2(0.6);
-//    for (int i = 0; i < 20; ++i)
-//    {
-//        list1.insert("val", i);
-//        list2.insert("val", i);
-//    }
-//    cout << "list1" << endl;
-//    list1.printRefs();
-//    cout << "list2" << endl;
-//    list2.printRefs();
-//    list2.printValues();
-//    list2.printKeys();
+    TestSkipList list1(0.3);
+    TestSkipList list2(0.6);
+    for (int i = 0; i < 20; ++i)
+    {
+        list1.insert("val", i);
+        list2.insert("val", i);
+    }
+    cout << "list1" << endl;
+    list1.printRefs();
+    cout << "list2" << endl;
+    list2.printRefs();
+    list2.printValues();
+    list2.printKeys();
 
 }
 
