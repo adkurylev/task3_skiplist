@@ -17,7 +17,7 @@
 //=============================================================================
 
 
-#include "ordered_list.h"
+//#include "ordered_list.h"
 
 template <class Value, class Key, class Node>
 OrderedList<Value, Key, Node>::OrderedList()
@@ -27,7 +27,7 @@ OrderedList<Value, Key, Node>::OrderedList()
 }
 
 //-----------------------------------------------------------------------------
-
+// TODO: проверить, работает ли деструктор без инклюда, когда removeNext описан ниже
 template<class Value, class Key, class Node>
 OrderedList<Value, Key, Node>::~OrderedList()
 {
