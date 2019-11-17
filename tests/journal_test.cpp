@@ -62,7 +62,7 @@ TEST(Journal, log1_emaxx)
     stringstream output;
     output.str(""); // clear
     journal.outputSuspiciousActivities("e-maxx.ru", TimeStamp(2015, 6, 10, 10, 33, 1),
-                                       TimeStamp(2015, 6, 10, 10, 33, 4), output);
+                                       TimeStamp(2015, 6, 10, 10, 33, 4) , output);
     EXPECT_EQ(output.str(), "2015.06.10 10:33:02 user126 e-maxx.ru\n");
 
     output.str(""); // clear

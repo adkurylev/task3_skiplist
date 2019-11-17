@@ -17,6 +17,8 @@
 //=============================================================================
 
 
+//#include "ordered_list.h"
+
 template <class Value, class Key, class Node>
 OrderedList<Value, Key, Node>::OrderedList()
 {
@@ -26,8 +28,29 @@ OrderedList<Value, Key, Node>::OrderedList()
 
 //-----------------------------------------------------------------------------
 
+template<class Value, class Key, class Node>
+OrderedList<Value, Key, Node>::~OrderedList()
+{
+    Node* current = _preHead->next;
+    Node* next = current->next;
+    // от такого способа чета одни сегфолты летят,
+    // хотя вроде должен работать, да еще и красивый :(
+//    while(current != _preHead)
+//    {
+//        current = current->next;
+//        removeNext(_preHead->next);
+//    }
+//    delete current;
 
-    // TODO: !!! Implement destructor correctly !!!
+    while(current != _preHead)
+    {
+        next = current->next;
+        delete current;
+        current = next;
+    }
+
+    delete current, next;
+}
 
 //-----------------------------------------------------------------------------
 
