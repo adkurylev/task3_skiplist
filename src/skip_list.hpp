@@ -12,6 +12,8 @@
 // !!! DO NOT include skip_list.h here, 'cause it leads to circular refs. !!!
 
 #include <cstdlib>
+#include "skip_list.h"
+
 //#include "skip_list.h"
 
 
@@ -122,10 +124,30 @@ void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
         ++newNode->levelHighest;
 
     // обновление всех ссылок
-    for (int i = 0; i <= newNode->levelHighest; ++i)
+    for (size_t i = 0; i <= newNode->levelHighest; ++i)
     {
         newNode->nextJump[i] = update[i]->next;
         update[i]->next = newNode;
     }
+}
+
+template<class Value, class Key, int numLevels>
+void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
+{
+    if (nodeBefore == nullptr ||
+        nodeBefore->next == nullptr ||
+        nodeBefore->next == Base::_preHead)
+    {
+        return; // это однострочник, но в реализации выше кодстайл такой же, не снижай плз
+    }
+
+    Node* nodeToRemove = nodeBefore->next;
+
+    for (size_t i = 0; i <= nodeToRemove->levelHighest; ++i)
+        nodeBefore->nextJump[i] = nodeToRemove->nextJump[i];
+
+    nodeBefore->next = nodeToRemove->next;
+
+    delete nodeToRemove;
 }
 // TODO: !!! One need to implement all declared methods !!!
