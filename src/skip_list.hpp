@@ -12,7 +12,8 @@
 // !!! DO NOT include skip_list.h here, 'cause it leads to circular refs. !!!
 
 #include <cstdlib>
-#include "skip_list.h"
+#include <random>
+//#include "skip_list.h"
 
 //#include "skip_list.h"
 
@@ -97,22 +98,24 @@ SkipList<Value, Key, numLevels>::~SkipList()
 template<class Value, class Key, int numLevels>
 void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
 {
-    // TODO: проверки!!!
-
     Node* allLevelNodesBefore[numLevels]; // массив ссылок на предыдущие элементы на всех уровнях
-    Node* nodeBefore = Base::_preHead->next;
-    srand(time(nullptr));
+    Node* nodeBefore = Base::_preHead;
+
+    // не баньте
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
 
     // нашел все предыдущие элементы
-    for (size_t i = numLevels - 1; i >= 0; --i)
+    for (int i = numLevels - 1; i >= 0; --i)
     {
-        while(nodeBefore->next != Base::_preHead && nodeBefore->nextJump[i]->key <= key)
+        while(nodeBefore->nextJump[i] != Base::_preHead && nodeBefore->nextJump[i]->key <= key)
             nodeBefore = nodeBefore->nextJump[i];
 
         allLevelNodesBefore[i] = nodeBefore;
     }
 
-    // х - элемент, после которого надо сгенерировать новый элемент
+    // nodeBefore - элемент, после которого надо сгенерировать новый элемент
     while (nodeBefore->next != Base::_preHead && nodeBefore->next->key <= key)
         nodeBefore = nodeBefore->next;
 
@@ -122,11 +125,13 @@ void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
     nodeBefore->next = newNode;
 
     // поиск числа генерируемых уровней
-    while(newNode->levelHighest < numLevels && (double)rand()/RAND_MAX <= _probability)
+    while(newNode->levelHighest < numLevels - 1 && dist(mt) <= _probability)
+    {
         ++newNode->levelHighest;
+    }
 
     // обновление всех ссылок
-    for (size_t i = 0; i <= newNode->levelHighest; ++i)
+    for (int i = 0; i <= newNode->levelHighest; ++i)
     {
         newNode->nextJump[i] = allLevelNodesBefore[i]->next;
         allLevelNodesBefore[i]->next = newNode;
@@ -146,7 +151,7 @@ void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
 
     Node* nodeToRemove = nodeBefore->next;
 
-    for (size_t i = 0; i <= nodeToRemove->levelHighest; ++i)
+    for (int i = 0; i <= nodeToRemove->levelHighest; ++i)
         nodeBefore->nextJump[i] = nodeToRemove->nextJump[i];
 
     nodeBefore->next = nodeToRemove->next;
@@ -167,9 +172,9 @@ NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findLastLe
     }
 
     // поиск за log(n) на верхних уровнях
-    for (size_t i = numLevels - 1; i >= 0; --i)
+    for (int i = numLevels - 1; i >= 0; --i)
     {
-        while(run->next != Base::_preHead && run->nextJump[i]->key < key)
+        while(run->nextJump[i] != Base::_preHead && run->nextJump[i]->key < key)
             run = run->nextJump[i];
     }
 
@@ -183,13 +188,17 @@ NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findLastLe
 template<class Value, class Key, int numLevels>
 NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findFirst(const Key& key) const
 {
+    // мне надоело писать комментарии, вроде работает
     Node* run = Base::_preHead;
 
-    for (size_t i = numLevels - 1; i >= 0; --i)
+    for (int i = numLevels - 1; i >= 0; --i)
     {
-        while(run->next != Base::_preHead && run->nextJump[i]->key < key)
+        while(run->nextJump[i] != Base::_preHead && run->nextJump[i]->key < key)
             run = run->nextJump[i];
     }
+
+    if(run->next->key == key && run->next != Base::_preHead)
+        return run->next;
 
     while(run != Base::_preHead && run->key != key)
         run = run->next;
@@ -200,4 +209,3 @@ NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findFirst(
     return run;
 
 }
-// TODO: !!! One need to implement all declared methods !!!

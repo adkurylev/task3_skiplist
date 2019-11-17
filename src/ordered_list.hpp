@@ -27,7 +27,7 @@ OrderedList<Value, Key, Node>::OrderedList()
 }
 
 //-----------------------------------------------------------------------------
-// TODO: проверить, работает ли деструктор без инклюда, когда removeNext описан ниже
+
 template<class Value, class Key, class Node>
 OrderedList<Value, Key, Node>::~OrderedList()
 {
@@ -37,7 +37,7 @@ OrderedList<Value, Key, Node>::~OrderedList()
         current = current->next;
         removeNext(_preHead->next);
     }
-    delete _preHead;
+    delete current;
 }
 
 //-----------------------------------------------------------------------------
