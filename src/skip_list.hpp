@@ -12,12 +12,14 @@
 // !!! DO NOT include skip_list.h here, 'cause it leads to circular refs. !!!
 
 #include <cstdlib>
+#include "skip_list.h"
+
 
 //==============================================================================
 // class NodeSkipList
 //==============================================================================
 
-template <class Value, class Key, int numLevels>
+template<class Value, class Key, int numLevels>
 void NodeSkipList<Value, Key, numLevels>::clear(void)
 {
     for (int i = 0; i < numLevels; ++i)
@@ -28,7 +30,7 @@ void NodeSkipList<Value, Key, numLevels>::clear(void)
 
 //------------------------------------------------------------------------------
 
-template <class Value, class Key, int numLevels>
+template<class Value, class Key, int numLevels>
 NodeSkipList<Value, Key, numLevels>::NodeSkipList(void)
 {
     clear();
@@ -36,7 +38,7 @@ NodeSkipList<Value, Key, numLevels>::NodeSkipList(void)
 
 //------------------------------------------------------------------------------
 
-template <class Value, class Key, int numLevels>
+template<class Value, class Key, int numLevels>
 NodeSkipList<Value, Key, numLevels>::NodeSkipList(const Key& tkey)
 {
     clear();
@@ -46,7 +48,7 @@ NodeSkipList<Value, Key, numLevels>::NodeSkipList(const Key& tkey)
 
 //------------------------------------------------------------------------------
 
-template <class Value, class Key, int numLevels>
+template<class Value, class Key, int numLevels>
 NodeSkipList<Value, Key, numLevels>::NodeSkipList(const Key& tkey, const Value& val)
 {
     clear();
@@ -60,7 +62,7 @@ NodeSkipList<Value, Key, numLevels>::NodeSkipList(const Key& tkey, const Value& 
 // class SkipList
 //==============================================================================
 
-template <class Value, class Key, int numLevels>
+template<class Value, class Key, int numLevels>
 SkipList<Value, Key, numLevels>::SkipList(double probability)
 {
     _probability = probability;
@@ -72,5 +74,44 @@ SkipList<Value, Key, numLevels>::SkipList(double probability)
     Base::_preHead->levelHighest = numLevels - 1;
 }
 
+template<class Value, class Key, int numLevels>
+SkipList<Value, Key, numLevels>::~SkipList()
+{
+    // Base destructor will be called automatically
+}
 
-    // TODO: !!! One need to implement all declared methods !!!
+template<class Value, class Key, int numLevels>
+void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
+{
+    Node* update[numLevels];
+    Node* x = Base::_preHead->next;
+
+    for (size_t i = numLevels - 1; i >= 0; --i)
+    {
+        while(x->next != Base::_preHead && x->nextJump[i]->key < key)
+            x = x->nextJump[i];
+
+        update[i] = x;
+    }
+
+    while (x->next != Base::_preHead && x->next <= key)
+        x = x->next;
+
+    Node* newNode = new Node(key, val);
+
+    newNode->next = x->next;
+    x->next = newNode;
+
+    //newNode->levelHighest
+    //сгенерировать максимальный уровень поочередным подрбрасыванием монетки
+    //обновить newNode->nextJump через update
+}
+
+template<class Value, class Key, int numLevels>
+void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
+{
+
+}
+
+
+// TODO: !!! One need to implement all declared methods !!!
