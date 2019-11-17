@@ -97,27 +97,29 @@ SkipList<Value, Key, numLevels>::~SkipList()
 template<class Value, class Key, int numLevels>
 void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
 {
-    Node* update[numLevels]; // массив ссылок на предыдущие элементы на всех уровнях
-    Node* x = Base::_preHead->next;
+    // TODO: проверки!!!
+
+    Node* allLevelNodesBefore[numLevels]; // массив ссылок на предыдущие элементы на всех уровнях
+    Node* nodeBefore = Base::_preHead->next;
     srand(time(nullptr));
 
     // нашел все предыдущие элементы
     for (size_t i = numLevels - 1; i >= 0; --i)
     {
-        while(x->next != Base::_preHead && x->nextJump[i]->key <= key)
-            x = x->nextJump[i];
+        while(nodeBefore->next != Base::_preHead && nodeBefore->nextJump[i]->key <= key)
+            nodeBefore = nodeBefore->nextJump[i];
 
-        update[i] = x;
+        allLevelNodesBefore[i] = nodeBefore;
     }
 
     // х - элемент, после которого надо сгенерировать новый элемент
-    while (x->next != Base::_preHead && x->next->key <= key)
-        x = x->next;
+    while (nodeBefore->next != Base::_preHead && nodeBefore->next->key <= key)
+        nodeBefore = nodeBefore->next;
 
     // генерация и перепревязка указателей базового уровня
     Node* newNode = new Node(key, val);
-    newNode->next = x->next;
-    x->next = newNode;
+    newNode->next = nodeBefore->next;
+    nodeBefore->next = newNode;
 
     // поиск числа генерируемых уровней
     while(newNode->levelHighest < numLevels && (double)rand()/RAND_MAX <= _probability)
@@ -126,8 +128,8 @@ void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
     // обновление всех ссылок
     for (size_t i = 0; i <= newNode->levelHighest; ++i)
     {
-        newNode->nextJump[i] = update[i]->next;
-        update[i]->next = newNode;
+        newNode->nextJump[i] = allLevelNodesBefore[i]->next;
+        allLevelNodesBefore[i]->next = newNode;
     }
 }
 
@@ -138,7 +140,8 @@ void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
         nodeBefore->next == nullptr ||
         nodeBefore->next == Base::_preHead)
     {
-        return; // это однострочник, но в реализации выше кодстайл такой же, не снижай плз
+        // это однострочник, но в реализации выше кодстайл такой же, не снижай плз
+        throw std::invalid_argument("Next node can't be removed.");
     }
 
     Node* nodeToRemove = nodeBefore->next;
@@ -149,5 +152,31 @@ void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
     nodeBefore->next = nodeToRemove->next;
 
     delete nodeToRemove;
+}
+
+template<class Value, class Key, int numLevels>
+NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findLastLessThan(const Key& key) const
+{
+    Node* run = Base::_preHead;
+
+    // проверки по условию
+    if(run->next == Base::_preHead ||
+        key < run->key)
+    {
+        return Base::_preHead;
+    }
+
+    // поиск за log(n) на верхних уровнях
+    for (size_t i = numLevels - 1; i >= 0; --i)
+    {
+        while(run->next != Base::_preHead && run->nextJump[i]->key < key)
+            run = run->nextJump[i];
+    }
+
+    // поиск на нижнем уровне
+    while(run->next != Base::_preHead && run->next->key < key)
+        run = run->next;
+
+    return run;
 }
 // TODO: !!! One need to implement all declared methods !!!
