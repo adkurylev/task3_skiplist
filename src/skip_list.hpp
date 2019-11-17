@@ -179,4 +179,25 @@ NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findLastLe
 
     return run;
 }
+
+template<class Value, class Key, int numLevels>
+NodeSkipList<Value, Key, numLevels>* SkipList<Value, Key, numLevels>::findFirst(const Key& key) const
+{
+    Node* run = Base::_preHead;
+
+    for (size_t i = numLevels - 1; i >= 0; --i)
+    {
+        while(run->next != Base::_preHead && run->nextJump[i]->key < key)
+            run = run->nextJump[i];
+    }
+
+    while(run != Base::_preHead && run->key != key)
+        run = run->next;
+
+    if(run == Base::_preHead)
+        return nullptr;
+
+    return run;
+
+}
 // TODO: !!! One need to implement all declared methods !!!
