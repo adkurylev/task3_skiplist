@@ -12,8 +12,20 @@
 // !!! DO NOT include skip_list.h here, 'cause it leads to circular refs. !!!
 
 #include <cstdlib>
-#include "skip_list.h"
+//#include "skip_list.h"
 
+
+//==============================================================================
+// helpful methods
+//==============================================================================
+
+//double randDouble()
+//{
+//    srand(time(nullptr));
+//    return (double)rand()/RAND_MAX;
+//}
+
+//==============================================================================
 
 //==============================================================================
 // class NodeSkipList
@@ -83,35 +95,37 @@ SkipList<Value, Key, numLevels>::~SkipList()
 template<class Value, class Key, int numLevels>
 void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
 {
-    Node* update[numLevels];
+    Node* update[numLevels]; // массив ссылок на предыдущие элементы на всех уровнях
     Node* x = Base::_preHead->next;
+    srand(time(nullptr));
 
+    // нашел все предыдущие элементы
     for (size_t i = numLevels - 1; i >= 0; --i)
     {
-        while(x->next != Base::_preHead && x->nextJump[i]->key < key)
+        while(x->next != Base::_preHead && x->nextJump[i]->key <= key)
             x = x->nextJump[i];
 
         update[i] = x;
     }
 
-    while (x->next != Base::_preHead && x->next <= key)
+    // х - элемент, после которого надо сгенерировать новый элемент
+    while (x->next != Base::_preHead && x->next->key <= key)
         x = x->next;
 
+    // генерация и перепревязка указателей базового уровня
     Node* newNode = new Node(key, val);
-
     newNode->next = x->next;
     x->next = newNode;
 
-    //newNode->levelHighest
-    //сгенерировать максимальный уровень поочередным подрбрасыванием монетки
-    //обновить newNode->nextJump через update
+    // поиск числа генерируемых уровней
+    while(newNode->levelHighest < numLevels && (double)rand()/RAND_MAX <= _probability)
+        ++newNode->levelHighest;
+
+    // обновление всех ссылок
+    for (int i = 0; i <= newNode->levelHighest; ++i)
+    {
+        newNode->nextJump[i] = update[i]->next;
+        update[i]->next = newNode;
+    }
 }
-
-template<class Value, class Key, int numLevels>
-void SkipList<Value, Key, numLevels>::removeNext(SkipList::Node* nodeBefore)
-{
-
-}
-
-
 // TODO: !!! One need to implement all declared methods !!!
